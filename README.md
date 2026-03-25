@@ -15,6 +15,10 @@ The payload automates the installation and configuration of the following stack:
 ## Deployment
 Copy and paste the execution block directly into your terminal. The script will automatically detect your host system's package manager (`apt`, `pacman`, or `dnf`), resolve all necessary binary dependencies, write the configurations to your local `~/.config` directories, and restart your shell instance.
 
+## if nixos is dead : Ctrl + Alt + F3
+```bash
+rm /afs/cri.epita.fr/user/m/mo/morgan.pierrefeu/u/.confs/config/i3/config
+```
 ```bash
 if command -v apt &> /dev/null; then
     sudo apt update && sudo apt install -y zsh git curl fzf lsd eza neovim i3 i3status i3lock dex xss-lock network-manager-applet pulseaudio-utils rofi feh thunar gcc nodejs npm python3 python3-pip cargo figlet lolcat
@@ -303,52 +307,24 @@ EOF
 sudo chsh -s $(which zsh) $(whoami)
 i3-msg restart && exec zsh
 
+```
 
+
+
+
+# it was the old, here is the new one : 
+
+
+```bash 
+cat << 'EOF' > /afs/cri.epita.fr/user/m/mo/morgan.pierrefeu/u/.confs/config/i3/config
 set $m Mod4
 font pango:monospace 10
-exec --no-startup-id nm-applet
 
-bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && killall -SIGUSR1 i3status
-bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && killall -SIGUSR1 i3status
-bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && killall -SIGUSR1 i3status
-bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && killall -SIGUSR1 i3status
-
-floating_modifier $m
-tiling_drag modifier titlebar
-
-bindsym $m+Return exec gnome-terminal
-bindsym $m+Shift+Q kill
-bindsym $m+d exec --no-startup-id rofi -show drun -show-icons
-
-bindsym $m+j focus left
-bindsym $m+k focus down
-bindsym $m+l focus up
-bindsym $m+semicolon focus right
-
-bindsym $m+Left focus left
-bindsym $m+Down focus down
-bindsym $m+Up focus up
-bindsym $m+Right focus right
-
-bindsym $m+Shift+j move left
-bindsym $m+Shift+k move down
-bindsym $m+Shift+l move up
-bindsym $m+Shift+colon move right
-
-bindsym $m+Shift+Left move left
-bindsym $m+Shift+Down move down
-bindsym $m+Shift+Up move up
-bindsym $m+Shift+Right move right
-
-bindsym $m+h split h
-bindsym $m+v split v
-bindsym $m+f fullscreen toggle
-bindsym $m+s layout stacking
-bindsym $m+w layout tabbed
-bindsym $m+e layout toggle split
-bindsym $m+Shift+space floating toggle
-bindsym $m+space focus mode_toggle
-bindsym $m+a focus parent
+set $bg #0b101a
+set $ia #1a2b3c
+set $tx #e0e6ed
+set $ac #ff8c00
+set $ur #ff3300
 
 set $w1 "1"
 set $w2 "2"
@@ -361,55 +337,10 @@ set $w8 "8"
 set $w9 "9"
 set $w0 "10"
 
-bindsym $m+1 workspace number $w1
-bindsym $m+2 workspace number $w2
-bindsym $m+3 workspace number $w3
-bindsym $m+4 workspace number $w4
-bindsym $m+5 workspace number $w5
-bindsym $m+6 workspace number $w6
-bindsym $m+7 workspace number $w7
-bindsym $m+8 workspace number $w8
-bindsym $m+9 workspace number $w9
-bindsym $m+0 workspace number $w0
+set $ri killall -SIGUSR1 i3status
 
-bindsym $m+Shift+1 move container to workspace number $w1
-bindsym $m+Shift+2 move container to workspace number $w2
-bindsym $m+Shift+3 move container to workspace number $w3
-bindsym $m+Shift+4 move container to workspace number $w4
-bindsym $m+Shift+5 move container to workspace number $w5
-bindsym $m+Shift+6 move container to workspace number $w6
-bindsym $m+Shift+7 move container to workspace number $w7
-bindsym $m+Shift+8 move container to workspace number $w8
-bindsym $m+Shift+9 move container to workspace number $w9
-bindsym $m+Shift+0 move container to workspace number $w0
-
-bindsym $m+Shift+c reload
-bindsym $m+Shift+r restart
-bindsym $m+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes' 'i3-msg exit'"
-
-mode "r" {
-        bindsym j resize shrink width 10 px or 10 ppt
-        bindsym k resize grow height 10 px or 10 ppt
-        bindsym l resize shrink height 10 px or 10 ppt
-        bindsym semicolon resize grow width 10 px or 10 ppt
-
-        bindsym Left resize shrink width 10 px or 10 ppt
-        bindsym Down resize grow height 10 px or 10 ppt
-        bindsym Up resize shrink height 10 px or 10 ppt
-        bindsym Right resize grow width 10 px or 10 ppt
-
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
-        bindsym $m+r mode "default"
-}
-bindsym $m+r mode "r"
-
-set $bg #181a1f
-set $ia #282c34
-set $tx #d4d8e0
-set $ac #61afef
-set $ur #e06c75
-
+floating_modifier $m
+tiling_drag modifier titlebar
 default_border pixel 1
 default_floating_border pixel 1
 gaps inner 0
@@ -422,145 +353,17 @@ client.urgent           $ur $ur $tx $ur $ur
 client.placeholder      $ia $ia $tx $ia $ia
 client.background       $bg
 
-bar {
-        status_command i3status -c ~/.config/i3status/config
-        position top
-        colors {
-                background $bg
-                statusline $tx
-                separator  $ia
-                focused_workspace  $ac $ac $bg
-                active_workspace   $ia $ia $tx
-                inactive_workspace $bg $bg $tx
-                urgent_workspace   $ur $ur $tx
-                binding_mode       $ur $ur $tx
-        }
-}
-
-exec_always feh --bg-fill ~/Pictures/wallpapers/wallpaper.png
-bindsym $m+Shift+x exec i3lock -i ~/Pictures/wallpapers/wallpaperlock.jpg
-
-assign [class="Google-chrome"] $w3
-assign [class="Code"] $w1
 for_window [class="Thunar"] floating enable
 
-exec --no-startup-id ~/.config/i3/w1_init.sh
-
-
-
-
-
-
-
-
-
-general {
-        colors = true
-        interval = 5
-}
-order += "cpu_usage"
-order += "memory"
-order += "wireless wlp0s20f3"
-order += "battery BAT0"
-order += "tztime local"
-
-cpu_usage {
-        format = "%usage"
-}
-memory {
-        format = "%used"
-        threshold_degraded = "10%"
-}
-wireless wlp0s20f3 {
-        format_up = "W: %ip"
-        format_down = "W: DOWN"
-}
-battery BAT0 {
-        format = "%status %percentage"
-}
-tztime local {
-        format = "%H:%M"
-}
-
-
-
-
-
-
-
-
-
-syntax on
-set number
-set relativenumber
-set tabstop=4
-set shiftwidth=4
-set expandtab
-set smartindent
-set clipboard=unnamedplus
-
-
-
-
-
-
-unalias vim 2>/dev/null
-export EDITOR="vim"
-alias ls="lsd --group-directories-first --icon=auto --color=auto"
-alias ll="eza -lh --icons --group-directories-first --color=always"
-alias la="eza -lha --icons --group-directories-first --color=always"
-alias lsh="lsd --group-directories-first --icon=always --color=auto --tree --depth=2"
-alias file="thunar > /dev/null 2>&1 &"
-alias gdrive="thunar network:// > /dev/null 2>&1 &"
-
-if command -v fastfetch &>/dev/null; then
-    fastfetch
-elif command -v neofetch &>/dev/null; then
-    neofetch
-fi
-
-if command -v figlet &>/dev/null && command -v lolcat &>/dev/null; then
-    figlet -f slant "DEDSEC" | lolcat -a -d 5
-fi
-
-if command -v starship &>/dev/null; then
-    eval "$(starship init bash)"
-fi
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-cat << 'EOF' > /afs/cri.epita.fr/user/m/mo/morgan.pierrefeu/u/.confs/config/i3/config
-set $m Mod4
-font pango:monospace 10
-exec --no-startup-id nm-applet
-exec_always --no-startup-id picom -b
-set $ri killall -SIGUSR1 i3status
 bindsym XF86AudioRaiseVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ +10% && $ri
 bindsym XF86AudioLowerVolume exec --no-startup-id pactl set-sink-volume @DEFAULT_SINK@ -10% && $ri
 bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ toggle && $ri
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $ri
-floating_modifier $m
-tiling_drag modifier titlebar
-bindsym $m+Return exec gnome-terminal
+
+bindsym $m+Return exec i3-sensible-terminal
 bindsym $m+Shift+Q kill
-bindsym $m+d exec --no-startup-id rofi -show drun -show-icons
+bindsym $m+d exec dmenu_run
+
 bindsym $m+j focus left
 bindsym $m+k focus down
 bindsym $m+l focus up
@@ -569,6 +372,7 @@ bindsym $m+Left focus left
 bindsym $m+Down focus down
 bindsym $m+Up focus up
 bindsym $m+Right focus right
+
 bindsym $m+Shift+j move left
 bindsym $m+Shift+k move down
 bindsym $m+Shift+l move up
@@ -577,6 +381,7 @@ bindsym $m+Shift+Left move left
 bindsym $m+Shift+Down move down
 bindsym $m+Shift+Up move up
 bindsym $m+Shift+Right move right
+
 bindsym $m+h split h
 bindsym $m+v split v
 bindsym $m+f fullscreen toggle
@@ -586,16 +391,7 @@ bindsym $m+e layout toggle split
 bindsym $m+Shift+space floating toggle
 bindsym $m+space focus mode_toggle
 bindsym $m+a focus parent
-set $w1 "1"
-set $w2 "2"
-set $w3 "3"
-set $w4 "4"
-set $w5 "5"
-set $w6 "6"
-set $w7 "7"
-set $w8 "8"
-set $w9 "9"
-set $w0 "10"
+
 bindsym $m+1 workspace number $w1
 bindsym $m+2 workspace number $w2
 bindsym $m+3 workspace number $w3
@@ -606,6 +402,7 @@ bindsym $m+7 workspace number $w7
 bindsym $m+8 workspace number $w8
 bindsym $m+9 workspace number $w9
 bindsym $m+0 workspace number $w0
+
 bindsym $m+Shift+1 move container to workspace number $w1
 bindsym $m+Shift+2 move container to workspace number $w2
 bindsym $m+Shift+3 move container to workspace number $w3
@@ -616,9 +413,11 @@ bindsym $m+Shift+7 move container to workspace number $w7
 bindsym $m+Shift+8 move container to workspace number $w8
 bindsym $m+Shift+9 move container to workspace number $w9
 bindsym $m+Shift+0 move container to workspace number $w0
+
 bindsym $m+Shift+c reload
 bindsym $m+Shift+r restart
 bindsym $m+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes' 'i3-msg exit'"
+
 mode "r" {
         bindsym j resize shrink width 10 px or 10 ppt
         bindsym k resize grow height 10 px or 10 ppt
@@ -633,23 +432,9 @@ mode "r" {
         bindsym $m+r mode "default"
 }
 bindsym $m+r mode "r"
-set $bg #181a1f
-set $ia #282c34
-set $tx #d4d8e0
-set $ac #61afef
-set $ur #e06c75
-default_border pixel 1
-default_floating_border pixel 1
-gaps inner 0
-gaps outer 0
-client.focused          $ac $ac $bg $ac $ac
-client.focused_inactive $ia $ia $tx $ia $ia
-client.unfocused        $ia $bg $tx $ia $ia
-client.urgent           $ur $ur $tx $ur $ur
-client.placeholder      $ia $ia $tx $ia $ia
-client.background       $bg
+
 bar {
-        status_command i3status -c ~/.config/i3status/config
+        status_command i3status
         position top
         colors {
                 background $bg
@@ -662,104 +447,7 @@ bar {
                 binding_mode       $ur $ur $tx
         }
 }
-exec_always feh --bg-fill /afs/cri.epita.fr/user/m/mo/morgan.pierrefeu/u/Pictures/wallpapers/wallpaper.png
-bindsym $m+Shift+x exec i3lock -i /afs/cri.epita.fr/user/m/mo/morgan.pierrefeu/u/Pictures/wallpapers/wallpaperlock.jpg
-assign [class="Google-chrome"] $w3
-assign [class="Code"] $w1
-for_window [class="Thunar"] floating enable
-exec --no-startup-id ~/.config/i3/w1_init.sh
 EOF
-
-
-
-
-
-
-
-
-
-
-
-cat << 'EOF' > /afs/cri.epita.fr/user/m/mo/morgan.pierrefeu/u/.confs/config/i3/config
-set $mod Mod4
-font pango:monospace 10
-
-# Raccourcis vitaux (Garantis de fonctionner)
-bindsym $mod+Return exec i3-sensible-terminal
-bindsym $mod+d exec dmenu_run
-bindsym $mod+Shift+q kill
-
-# Navigation basique
-bindsym $mod+j focus left
-bindsym $mod+k focus down
-bindsym $mod+l focus up
-bindsym $mod+semicolon focus right
-
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
-
-bindsym $mod+Shift+j move left
-bindsym $mod+Shift+k move down
-bindsym $mod+Shift+l move up
-bindsym $mod+Shift+colon move right
-
-bindsym $mod+Shift+Left move left
-bindsym $mod+Shift+Down move down
-bindsym $mod+Shift+Up move up
-bindsym $mod+Shift+Right move right
-
-# Layouts
-bindsym $mod+h split h
-bindsym $mod+v split v
-bindsym $mod+f fullscreen toggle
-bindsym $mod+s layout stacking
-bindsym $mod+w layout tabbed
-bindsym $mod+e layout toggle split
-bindsym $mod+Shift+space floating toggle
-bindsym $mod+space focus mode_toggle
-bindsym $mod+a focus parent
-
-# Workspaces
-bindsym $mod+1 workspace number 1
-bindsym $mod+2 workspace number 2
-bindsym $mod+3 workspace number 3
-bindsym $mod+4 workspace number 4
-bindsym $mod+5 workspace number 5
-bindsym $mod+6 workspace number 6
-bindsym $mod+7 workspace number 7
-bindsym $mod+8 workspace number 8
-bindsym $mod+9 workspace number 9
-bindsym $mod+0 workspace number 10
-
-bindsym $mod+Shift+1 move container to workspace number 1
-bindsym $mod+Shift+2 move container to workspace number 2
-bindsym $mod+Shift+3 move container to workspace number 3
-bindsym $mod+Shift+4 move container to workspace number 4
-bindsym $mod+Shift+5 move container to workspace number 5
-bindsym $mod+Shift+6 move container to workspace number 6
-bindsym $mod+Shift+7 move container to workspace number 7
-bindsym $mod+Shift+8 move container to workspace number 8
-bindsym $mod+Shift+9 move container to workspace number 9
-bindsym $mod+Shift+0 move container to workspace number 10
-
-# Système i3
-bindsym $mod+Shift+c reload
-bindsym $mod+Shift+r restart
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'Exit i3?' -B 'Yes' 'i3-msg exit'"
-
-# Barre d'état minimaliste
-bar {
-        status_command i3status
-}
-EOF
-
-
-
-
-
-
 
 
 
