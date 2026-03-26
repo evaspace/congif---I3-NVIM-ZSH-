@@ -451,8 +451,12 @@ bar {
         }
 }
 EOF
-
-
+#fix vim
+unalias vim 2>/dev/null
+sed -i '/alias vim=/d' ~/.bashrc ~/.bash_aliases 2>/dev/null
+sed -i '/alias vi=/d' ~/.bashrc ~/.bash_aliases 2>/dev/null
+echo 'export EDITOR="vim"' >> ~/.bashrc
+source ~/.bashrc
 
 
 
