@@ -433,8 +433,11 @@ mode "r" {
 }
 bindsym $m+r mode "r"
 
+exec_always --no-startup-id feh --bg-fill /afs/cri.epita.fr/user/m/mo/morgan.pierrefeu/u/Pictures/wallpapers/spacestatoinperfect.jpg
+bindsym $m+Shift+x exec i3lock -i /afs/cri.epita.fr/user/m/mo/morgan.pierrefeu/u/Pictures/wallpapers/wallpaperlock.jpg
+
 bar {
-        status_command i3status
+        status_command i3status -c ~/.confs/config/i3status/config
         position top
         colors {
                 background $bg
@@ -448,11 +451,6 @@ bar {
         }
 }
 EOF
-
-
-
-
-
 
 
 
