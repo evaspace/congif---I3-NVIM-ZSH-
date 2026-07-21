@@ -1,48 +1,14 @@
-# congif---I3-NVIM-ZSH-
-
-Instant Tiling Desktop Environment Bootstrapper
-
-## Overview
-
-This project provides a zero-dependency, single-execution bootstrap payload designed to deploy a complete, hyper-focused, and keyboard-centric Linux desktop environment in seconds.
-
-It is engineered for universal compatibility:
-- **Zero Hardcoded Paths**: Dynamic `$HOME` expansion across all configuration files.
-- **Sudo-Resilient Deployment**: Runs seamlessly on unprivileged accounts (such as EPITA CRI / AFS workstations) by falling back to user-space dotfile setup without throwing errors when root access is unavailable.
-- **Modern Color Palette**: Modern dark theme `#1e1e24` with cyan accents `#5ccfe6` and clean typography.
-
----
-
-## Core Architecture
-
-The payload automates the installation and configuration of the following stack:
-
-- **Window Manager**: `i3wm` + `i3status` + Python status wrapper for dynamic CPU/hardware metrics.
-- **Terminal Environment**: `zsh` + `oh-my-zsh` + `powerlevel10k` + `zsh-autosuggestions` + `zsh-syntax-highlighting`.
-- **Editor**: `neovim` (configured with `lazy.nvim`, OneDark, Treesitter, Mason, and LSP) + portable `.vimrc`.
-- **System Utilities**: `rofi`, `feh`, `alacritty`, `dunst`, `maim`, `xclip`, `lsd`, `eza`, `fzf`.
-
----
-
-## Deployment (Single Execution)
-
-### Option 1: One-Line Installer (Recommended)
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/evaspace/congif---I3-NVIM-ZSH-/main/install.sh | bash
-```
-
-### Option 2: Copy & Paste Block
-
-Copy and paste the execution block directly into your terminal. The script detects package management capabilities, initializes directory trees, clones user plugins, writes configuration files to `~/.config/`, and reloads your environment.
-
-```bash
-cat << 'EOF' > /tmp/bootstrap_desktop.sh
 #!/usr/bin/env bash
+# ==============================================================================
+# Instant Tiling Desktop Environment & Terminal Bootstrapper
+# Universal single-execution script for Linux (Root / Non-Root / EPITA CRI / AFS)
+# ==============================================================================
+
 set -e
 
 echo "[+] Initializing Instant Desktop Environment Bootstrapper..."
 
+# 1. Detect Sudo / Root privileges
 HAS_SUDO=0
 if command -v sudo >/dev/null 2>&1; then
     if sudo -n true 2>/dev/null || sudo -v 2>/dev/null; then
@@ -55,7 +21,7 @@ PKGS_PACMAN="zsh git curl fzf lsd eza neovim i3-wm i3status i3lock dex xss-lock 
 PKGS_DNF="zsh git curl fzf lsd eza neovim i3 i3status i3lock dex xss-lock network-manager-applet pulseaudio-utils rofi feh thunar gcc nodejs npm python3 python3-pip cargo alacritty maim xclip dunst"
 
 if [ "$HAS_SUDO" -eq 1 ]; then
-    echo "[+] Sudo privileges detected. Installing system packages..."
+    echo "[+] Sudo privileges detected. Installing/updating system packages..."
     if command -v apt &>/dev/null; then
         sudo apt update && sudo apt install -y $PKGS_APT || true
     elif command -v pacman &>/dev/null; then
@@ -64,11 +30,13 @@ if [ "$HAS_SUDO" -eq 1 ]; then
         sudo dnf install -y $PKGS_DNF || true
     fi
 else
-    echo "[!] Sudo privileges not available. Skipping system packages and configuring user environment..."
+    echo "[!] Sudo privileges not available. Proceeding in user-space dotfile mode..."
 fi
 
+# 2. Initialize Directory Hierarchy
 mkdir -p "$HOME/.config/i3" "$HOME/.config/i3status" "$HOME/.config/nvim" "$HOME/.local/bin" "$HOME/Pictures/wallpapers"
 
+# 3. Install Oh-My-Zsh & Zsh Plugins
 if [ ! -d "$HOME/.oh-my-zsh" ]; then
     echo "[+] Installing Oh My Zsh..."
     sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended || true
@@ -78,18 +46,22 @@ ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
 mkdir -p "$ZSH_CUSTOM/themes" "$ZSH_CUSTOM/plugins"
 
 if [ ! -d "$ZSH_CUSTOM/themes/powerlevel10k" ]; then
+    echo "[+] Installing Powerlevel10k theme..."
     git clone --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k" || true
 fi
 
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ]; then
+    echo "[+] Installing zsh-autosuggestions..."
     git clone https://github.com/zsh-users/zsh-autosuggestions "$ZSH_CUSTOM/plugins/zsh-autosuggestions" || true
 fi
 
 if [ ! -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ]; then
+    echo "[+] Installing zsh-syntax-highlighting..."
     git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" || true
 fi
 
-cat << 'EZSH' > "$HOME/.zshrc"
+# 4. Deploy Zsh Configuration (~/.zshrc)
+cat << 'EOF' > "$HOME/.zshrc"
 if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
     source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
@@ -141,9 +113,10 @@ bindkey "^[[A" up-line-or-history
 bindkey "^[[B" down-line-or-history
 bindkey "^[[C" forward-char
 bindkey "^[[D" backward-char
-EZSH
+EOF
 
-cat << 'EVIM' > "$HOME/.vimrc"
+# 5. Deploy Vim & Neovim Configuration (~/.vimrc & ~/.config/nvim/init.lua)
+cat << 'EOF' > "$HOME/.vimrc"
 set number
 set relativenumber
 syntax on
@@ -153,9 +126,9 @@ set expandtab
 set smartindent
 set mouse=a
 set termguicolors
-EVIM
+EOF
 
-cat << 'ENVIM' > "$HOME/.config/nvim/init.lua"
+cat << 'EOF' > "$HOME/.config/nvim/init.lua"
 vim.opt.termguicolors = true
 vim.opt.number = true
 vim.opt.relativenumber = true
@@ -234,9 +207,10 @@ require("lazy").setup({
         end
     }
 })
-ENVIM
+EOF
 
-cat << 'EBAR' > "$HOME/.config/i3status/config"
+# 6. Deploy i3status Configuration (~/.config/i3status/config)
+cat << 'EOF' > "$HOME/.config/i3status/config"
 general {
     colors = true
     interval = 5
@@ -284,9 +258,10 @@ volume master {
 tztime local {
     format = " %Y-%m-%d %H:%M:%S "
 }
-EBAR
+EOF
 
-cat << 'EWRAP' > "$HOME/.config/i3/status_wrapper.py"
+# 7. Deploy Status Wrapper Script (~/.config/i3/status_wrapper.py)
+cat << 'EOF' > "$HOME/.config/i3/status_wrapper.py"
 #!/usr/bin/env python3
 import sys
 import json
@@ -355,9 +330,10 @@ def main():
 
 if __name__ == "__main__":
     main()
-EWRAP
+EOF
 
-cat << 'ELOCK' > "$HOME/.config/i3/lock.sh"
+# 8. Deploy Lock Script (~/.config/i3/lock.sh)
+cat << 'EOF' > "$HOME/.config/i3/lock.sh"
 #!/bin/bash
 if command -v i3lock >/dev/null 2>&1; then
     WALLPAPER="$HOME/Pictures/wallpapers/wallpaperlock.jpg"
@@ -367,11 +343,12 @@ if command -v i3lock >/dev/null 2>&1; then
         i3lock -c 1e1e24
     fi
 fi
-ELOCK
+EOF
 
 chmod +x "$HOME/.config/i3/status_wrapper.py" "$HOME/.config/i3/lock.sh" 2>/dev/null || true
 
-cat << 'EI3' > "$HOME/.config/i3/config"
+# 9. Deploy i3 Configuration (~/.config/i3/config)
+cat << 'EOF' > "$HOME/.config/i3/config"
 set $m Mod4
 font pango:monospace 10
 
@@ -528,8 +505,9 @@ bar {
 
 bindsym Print exec --no-startup-id maim -s | xclip -selection clipboard -t image/png && dunstify 'Screenshot' 'Captured to clipboard' 2>/dev/null || true
 bindsym Mod4+Print exec --no-startup-id maim ~/Pictures/$(date +%Y-%m-%d_%H-%M-%S).png && dunstify 'Screenshot' 'Saved to Pictures' 2>/dev/null || true
-EI3
+EOF
 
+# 10. Switch Default Shell to Zsh
 if [ "$SHELL" != "$(which zsh 2>/dev/null)" ] && command -v zsh >/dev/null 2>&1; then
     if [ "$HAS_SUDO" -eq 1 ]; then
         sudo chsh -s "$(which zsh)" "$(whoami)" 2>/dev/null || chsh -s "$(which zsh)" 2>/dev/null || true
@@ -538,22 +516,8 @@ if [ "$SHELL" != "$(which zsh 2>/dev/null)" ] && command -v zsh >/dev/null 2>&1;
     fi
 fi
 
-echo "[+] Bootstrapper execution completed successfully!"
+echo "[+] Deployment complete! Reloading i3 / launching Zsh..."
+if command -v i3-msg >/dev/null 2>&1; then
+    i3-msg restart 2>/dev/null || true
+fi
 EOF
-chmod +x /tmp/bootstrap_desktop.sh
-/tmp/bootstrap_desktop.sh
-```
-
----
-
-## Essential Keybindings Reference
-
-- `Mod4 + Return`: Launch terminal (Alacritty / Sensible fallback)
-- `Mod4 + d`: Application Launcher (Rofi / dmenu)
-- `Mod4 + Shift + q`: Kill focused window
-- `Mod4 + Shift + x`: Lock screen
-- `Mod4 + Shift + u`: Send window to scratchpad
-- `Mod4 + u`: Toggle scratchpad window
-- `Mod4 + Shift + r`: Restart i3
-- `Print`: Screenshot selection to clipboard
-- `Mod4 + Print`: Screenshot full screen to `~/Pictures`
